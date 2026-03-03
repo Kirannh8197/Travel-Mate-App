@@ -7,7 +7,6 @@ connectDb();
 const app = express();
 app.use(express.json());
 app.use(cors());
-app.use("/api/employee",);
 
 async function startServer() {
     const PORT = 1234;
