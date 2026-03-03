@@ -1,6 +1,5 @@
 # Travel_Mate_App
 
-Gemini said
 Building "Travel Mate" is a fantastic full-stack MERN project. It incorporates standard e-commerce features (booking), complex data relationships, and third-party integrations (maps and geolocation), which are excellent for a developer portfolio.
 
 Since you want a clean, production-ready setup, we will use a Feature-Driven Architecture for the frontend (similar to what we discussed for your previous microservices project) and a Layered Architecture (Controllers -> Services -> Models) for the backend.
