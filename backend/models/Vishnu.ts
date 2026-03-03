@@ -1,0 +1,1 @@
+// It's just a test mesage model, not a real one guys.
