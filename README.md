@@ -132,3 +132,10 @@ frontend/src/
 │   ├── HotelDetails.tsx
 │   └── UserDashboard.tsx
 └── App.tsx           # React Router setup
+
+
+
+
+
+
+
