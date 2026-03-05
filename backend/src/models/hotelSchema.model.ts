@@ -3,6 +3,8 @@ import { Schema, model, Document } from 'mongoose';
 export interface IHotel extends Document {
   hotelId: number;
   name: string;
+  email: string;
+  password: string;
   description: string;
   address: {
     city: string;
@@ -15,7 +17,7 @@ export interface IHotel extends Document {
   };
   pricePerNight: number;
   amenities: string[];
-  images: string[]; // Array to hold image URLs
+  images: string[];
   averageRating: number;
 }
 
@@ -23,6 +25,8 @@ const HotelSchema = new Schema<IHotel>(
   {
     hotelId: { type: Number, required: true, unique: true },
     name: { type: String, required: true },
+    email: { type: String, required: true, unique: true, lowercase: true }, // Added Email
+    password: { type: String, required: true }, // Added Password
     description: { type: String, required: true },
     address: {
       city: { type: String, required: true },
@@ -50,7 +54,6 @@ const HotelSchema = new Schema<IHotel>(
   { timestamps: true }
 );
 
-// Crucial for the "Find Hotels Near Me" feature
 HotelSchema.index({ location: '2dsphere' });
 
 export const Hotel = model<IHotel>('Hotel', HotelSchema);
