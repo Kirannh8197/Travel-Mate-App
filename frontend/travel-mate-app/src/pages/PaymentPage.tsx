@@ -1,15 +1,24 @@
-import { useState, useEffect, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-    CreditCard, Lock, Check, Car, Star, Sparkles, ArrowRight, Smartphone
-} from 'lucide-react';
-import { useUserStore } from '../store/useUserStore';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+// V's_new_start — SUPERSEDED by CheckoutDrawer.tsx (Premium-Plus upgrade)
+// This page-based payment flow has been replaced by the Liquid-Glass slide-up drawer.
+// The file is preserved as a reference/fallback. The /payment route now redirects to /search.
+// To restore: uncomment below, add back the route in App.tsx, and remove CheckoutDrawer from HotelDetailPage.
 
-const BACKEND = 'http://localhost:5000';
-const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
+// import { useState, useEffect, useRef } from 'react';
+// import { useLocation, useNavigate } from 'react-router-dom';
+// import { motion, AnimatePresence } from 'framer-motion';
+// import {
+//     CreditCard, Lock, Check, Car, Star, Sparkles, ArrowRight, Smartphone
+// } from 'lucide-react';
+// import { useUserStore } from '../store/useUserStore';
+// import mapboxgl from 'mapbox-gl';
+// import 'mapbox-gl/dist/mapbox-gl.css';
+
+// const BACKEND = 'http://localhost:5000';
+// const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
+
+// Stub export so App.tsx /payment route doesn't break during transition
+export const PaymentPage = () => null;
+// V's_new_end
 
 // ─── Step Bar ────────────────────────────────────────────────────────
 const STEPS = ['Payment', 'Ride', 'Done'];

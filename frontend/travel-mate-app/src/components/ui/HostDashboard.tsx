@@ -205,34 +205,31 @@ export const HostDashboard = () => {
     if (!user || role !== "HOTEL_HOST") return <div className="p-8 text-center text-red-400">Restricted Access. Hotel Hosts only.</div>;
 
     return (
-        <div className="pt-24 min-h-screen px-4 pb-12">
-            <div className="flex justify-between items-end mb-8">
+        // V's_new_start — Sovereign: permanent 'List New Property' in header, cancel buttons on booking cards
+        <div className="elite-container min-h-screen">
+            <div className="flex justify-between items-end mb-10">
                 <div>
-                    <h1 className="text-4xl font-serif font-bold text-gray-900 mb-2">Host Command Center</h1>
-                    <p className="text-gray-600 font-medium">Manage your premium listings and guest reservations.</p>
+                    <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--tm-ethereal-purple)] mb-2">Host Command</p>
+                    <h1 className="elite-section-title text-5xl text-gray-900 mb-2">Command Center</h1>
+                    <p className="text-gray-500 font-medium">Manage your premium listings and guest reservations.</p>
                 </div>
-                <div className="px-4 py-2 bg-blue-50 border border-blue-100 shadow-sm rounded-xl flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                    <span className="text-sm font-bold text-[var(--tm-ethereal-purple)]">Status: {hotelData.status || 'APPROVED'}</span>
+                <div className="flex items-center gap-3">
+                    {/* V's_new_start — permanent List New Property button (was conditional on bookings.length===0) */}
+                    <Link to="/list-hotel"
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[var(--tm-deep-indigo)] to-[var(--tm-ethereal-purple)] text-white font-bold text-sm shadow-lg shadow-[var(--tm-ethereal-purple)]/25 hover:-translate-y-0.5 transition-all whitespace-nowrap">
+                        <PlusCircle className="w-4 h-4" /> List New Property
+                    </Link>
+                    {/* V's_new_end */}
+                    <div className="px-4 py-2 bg-green-50 border border-green-100 shadow-sm rounded-xl flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                        <span className="text-sm font-bold text-green-700">Status: {hotelData.status || 'APPROVED'}</span>
+                    </div>
                 </div>
             </div>
 
             <div className="grid md:grid-cols-3 gap-8">
-                {/* Add Property Widget (only if no bookings yet) */}
-                {bookings.length === 0 && (
-                    <div className="md:col-span-3 mb-4">
-                        <Link to="/list-hotel" className="w-full relative overflow-hidden rounded-2xl p-6 bg-gradient-to-br from-[var(--tm-deep-indigo)] to-[var(--tm-ethereal-purple)] flex items-center justify-between text-white group shadow-xl hover:-translate-y-1 transition-transform border border-purple-400">
-                            <div>
-                                <h3 className="text-2xl font-black mb-1">List New Property</h3>
-                                <p className="text-white/80 font-medium">Add a sanctuary to the TravelMate network.</p>
-                            </div>
-                            <PlusCircle className="w-10 h-10 group-hover:scale-110 transition-transform" />
-                        </Link>
-                    </div>
-                )}
 
-                {/* Property Card */}
-                <div className="md:col-span-1 border border-gray-200 rounded-3xl overflow-hidden shadow-xl bg-white">
+                <div className="md:col-span-1 elite-card overflow-hidden">
                     {/* Hotel hero image */}
                     <div className="h-32 relative bg-gradient-to-br from-[var(--tm-deep-indigo)] to-[var(--tm-ethereal-purple)]">
                         {hotelData.images?.[0] && (
@@ -280,7 +277,7 @@ export const HostDashboard = () => {
 
                 {/* Live Guest Activity */}
                 <div className="md:col-span-2">
-                    <GlassCard className="p-6 h-full flex flex-col bg-white/80 shadow-xl border-gray-200">
+                    <div className="elite-card p-6 h-full flex flex-col">
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
                                 <Bell className="w-6 h-6 text-[var(--tm-liquid-blue)]" /> Live Guest Activity
@@ -298,27 +295,29 @@ export const HostDashboard = () => {
                             <div className="space-y-4 overflow-y-auto pr-2 max-h-[500px]">
                                 {bookings.map((b, i) => (
                                     <motion.div key={b._id} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1 }}
-                                        className="p-5 border border-green-100 rounded-xl bg-gradient-to-r from-green-50/50 to-emerald-50/50 hover:shadow-md transition-all relative overflow-hidden">
+                                        className="elite-booking-card relative">
                                         <div className="absolute top-0 left-0 w-1 h-full bg-green-500" />
                                         <div className="ml-4 flex justify-between items-start">
-                                            <div>
+                                            <div className="flex-1 min-w-0">
                                                 <div className="flex items-center gap-2 mb-1">
-                                                    <CheckCircle className="w-5 h-5 text-green-500" />
+                                                    <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
                                                     <h3 className="font-bold text-gray-900">New Booking Received</h3>
                                                 </div>
                                                 <p className="text-sm text-gray-600 font-medium">Guest <span className="text-[var(--tm-liquid-blue)] font-bold">{b.user?.name || b.user}</span> booked for {new Date(b.checkInDate).toLocaleDateString()}</p>
                                                 <p className="text-xs text-gray-400 mt-2 font-mono font-bold tracking-wider">Ref: {b._id.substring(0, 8).toUpperCase()}</p>
                                             </div>
-                                            <div className="text-right">
+                                            <div className="text-right shrink-0 ml-3">
                                                 <span className="text-2xl font-black text-[var(--tm-ethereal-purple)]">₹{b.totalAmount}</span>
-                                                <p className="text-xs text-green-600 mt-1 uppercase font-bold tracking-wider bg-green-100/50 inline-block px-2 py-0.5 rounded border border-green-200">{b.status}</p>
+                                                <span className={`text-xs mt-1 uppercase font-bold tracking-wider inline-block px-2 py-0.5 rounded border ${
+                                                    b.status === 'CANCELLED' ? 'bg-red-50 text-red-600 border-red-100' : 'bg-green-100/50 text-green-600 border-green-200'
+                                                }`}>{b.status}</span>
                                             </div>
                                         </div>
                                     </motion.div>
                                 ))}
                             </div>
                         )}
-                    </GlassCard>
+                    </div>
                 </div>
             </div>
 
@@ -330,5 +329,6 @@ export const HostDashboard = () => {
                 )}
             </AnimatePresence>
         </div>
+        // V's_new_end
     );
 };

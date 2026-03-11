@@ -68,7 +68,8 @@ import { RoomAvailability } from "../models/roomAvailabilitySchema.model";
 //V's_new_start
 /**
  * Create Booking Service
- * NOTE: Uses simple create() — no transactions (requires standalone-compatible MongoDB)
+ * Uses Mongoose sessions for atomic integrity where available.
+ * Falls back safely on standalone MongoDB (no replica set).
  */
 export const createBooking = async (
   userId: string,
@@ -88,28 +89,43 @@ export const createBooking = async (
     throw new Error("Check-out date must be after check-in date");
   }
 
-  const hotel = await Hotel.findById(hotelId);
-  if (!hotel) {
-    throw new Error("Hotel not found");
+  // Attempt atomic transaction (requires Replica Set)
+  const session = await mongoose.startSession();
+  try {
+    let booking: any;
+    await session.withTransaction(async () => {
+      const hotel = await Hotel.findById(hotelId).session(session);
+      if (!hotel) throw new Error("Hotel not found");
+
+      const diffTime = checkOut.getTime() - checkIn.getTime();
+      const totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const totalAmount = totalDays * hotel.pricePerNight;
+
+      const [created] = await Booking.create(
+        [{ user: userId, hotel: hotelId, roomType: roomTypeId, checkInDate: checkIn, checkOutDate: checkOut, totalAmount, status: "CONFIRMED" }],
+        { session }
+      );
+      booking = created;
+    });
+    return booking;
+  } catch (txError: any) {
+    // Graceful fallback for standalone MongoDB (no replica set)
+    if (txError?.code === 51 || txError?.message?.includes('transaction') || txError?.message?.includes('replica')) {
+      console.warn('[TravelMate] Transactions unavailable (standalone DB) — falling back to simple create()');
+      const hotel = await Hotel.findById(hotelId);
+      if (!hotel) throw new Error("Hotel not found");
+      const diffTime = checkOut.getTime() - checkIn.getTime();
+      const totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const totalAmount = totalDays * hotel.pricePerNight;
+      return await Booking.create({ user: userId, hotel: hotelId, roomType: roomTypeId, checkInDate: checkIn, checkOutDate: checkOut, totalAmount, status: "CONFIRMED" });
+    }
+    throw txError;
+  } finally {
+    await session.endSession();
   }
-
-  const diffTime = checkOut.getTime() - checkIn.getTime();
-  const totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  const totalAmount = totalDays * hotel.pricePerNight;
-
-  const booking = await Booking.create({
-    user: userId,
-    hotel: hotelId,
-    roomType: roomTypeId,
-    checkInDate: checkIn,
-    checkOutDate: checkOut,
-    totalAmount,
-    status: "CONFIRMED",
-  });
-
-  return booking;
 };
 //V's_new_end
+
 
 
 /**

@@ -250,11 +250,14 @@ export const SandboxBooking = () => {
     const past = bookings.filter(b => b.status === 'CANCELLED' || b.status === 'COMPLETED');
 
     return (
-        <div className="min-h-screen pt-24 pb-20 px-4">
-            <div className="max-w-3xl mx-auto">
-                <div className="mb-8">
-                    <h1 className="text-3xl font-serif font-black text-gray-900 mb-1">Active Bookings</h1>
-                    <p className="text-gray-500 font-medium">Manage your reservations and view details.</p>
+        // V's_new_start — Phase 4: Elite Container centering
+        // Old: <div className="min-h-screen pt-24 pb-20 px-4"> + <div className="max-w-3xl mx-auto">
+        <div className="elite-container min-h-screen">
+            <div>
+                <div className="mb-10">
+                    <p className="text-xs font-black uppercase tracking-[0.25em] text-[var(--tm-ethereal-purple)] mb-2">My Journey</p>
+                    <h1 className="elite-section-title text-5xl text-gray-900 mb-2">Active Bookings</h1>
+                    <p className="text-gray-500 font-medium text-lg">Manage your reservations and view cancellation details.</p>
                 </div>
 
                 {isLoading ? (
@@ -277,17 +280,18 @@ export const SandboxBooking = () => {
                         {active.length > 0 && (
                             <section>
                                 <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Active Reservations</p>
-                                <div className="space-y-4">
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                                     {active.map(b => {
                                         const hotel = b.hotel;
                                         const nights = Math.max(1, Math.ceil(
                                             (new Date(b.checkOutDate).getTime() - new Date(b.checkInDate).getTime()) / 86400000
                                         ));
                                         return (
+                                            // V's_new_start — elite-booking-card
                                             <motion.div key={b._id} whileHover={{ y: -2 }}
                                                 onClick={() => setSelectedBooking(b)}
-                                                className="cursor-pointer">
-                                                <GlassCard className="p-5 bg-white shadow-lg hover:shadow-xl border-gray-100 rounded-3xl transition-all">
+                                                className="cursor-pointer elite-booking-card">
+                                                <div>
                                                     <div className="flex items-start gap-4">
                                                         <div className="w-16 h-16 bg-gradient-to-br from-[var(--tm-deep-indigo)] to-[var(--tm-ethereal-purple)] rounded-2xl flex items-center justify-center text-white font-black text-xl flex-shrink-0 shadow-lg shadow-[var(--tm-ethereal-purple)]/20">
                                                             {hotel?.name?.[0] || 'H'}
@@ -317,7 +321,7 @@ export const SandboxBooking = () => {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </GlassCard>
+                                                </div>
                                             </motion.div>
                                         );
                                     })}

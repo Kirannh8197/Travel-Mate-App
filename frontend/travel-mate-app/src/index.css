@@ -34,9 +34,17 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/*
+ * V's_new_start — THE LEFT-DRIFT EXORCISM
+ * ROOT CAUSE: body had `display: flex` (Vite default), making #root a flex ITEM.
+ * Flex items in a row container shrink to content width — NOT viewport width.
+ * So #root was never 100% wide → mx-auto in elite-container had nothing to center against.
+ * FIX: body→block, #root→width:100%, App div→w-full via Tailwind.
+ */
 body {
   margin: 0;
-  display: flex;
+  display: block;          /* was: flex — the culprit that broke all centering */
+  width: 100%;
   min-width: 320px;
   min-height: 100vh;
   /* Beautiful soft bright gradient */
@@ -45,6 +53,13 @@ body {
               radial-gradient(circle at 50% 80%, #f5f3ff, transparent 50%);
   background-attachment: fixed;
 }
+
+/* Guarantee react root always fills viewport width */
+#root {
+  width: 100%;            /* was: missing — flex item collapsed to content width */
+  min-height: 100vh;
+}
+/* V's_new_end */
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-serif);
@@ -62,3 +77,82 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Remove dark color scheme overrides if present, ensuring it stays light */
+
+/* ─────────────────────────────────────────────────────────────────────────
+   V's_new_start — Visual Identity Audit: Elite Global Utilities
+   These classes form the "Sovereign Design System" foundation.
+   Apply .elite-container to any page root. Apply .elite-card to any card.
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* 1. The Elite Centering Container */
+.elite-container {
+  max-width: 72rem;      /* 1152px ≈ 6xl */
+  margin-left: auto;
+  margin-right: auto;
+  padding: 6rem 1rem 3rem; /* top: 24 (navbar offset), sides: 4, bottom: 12 */
+}
+@media (min-width: 640px)  { .elite-container { padding-left: 1.5rem; padding-right: 1.5rem; } }
+@media (min-width: 1024px) { .elite-container { padding-left: 2rem;   padding-right: 2rem;   } }
+
+/* 2. The Elite Card — Subtle gradient + layered premium shadow */
+.elite-card {
+  background: linear-gradient(145deg, #ffffff 0%, rgba(249, 250, 251, 0.6) 100%);
+  /* Layered shadow: tight contact shadow + wide ambient glow */
+  box-shadow:
+    0 1px 2px 0   rgba(0, 0, 0, 0.04),
+    0 4px 8px -2px rgba(0, 0, 0, 0.06),
+    0 20px 48px -8px rgba(0, 0, 0, 0.08);
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  overflow: hidden;
+}
+.elite-card:hover {
+  box-shadow:
+    0 1px 2px 0   rgba(0, 0, 0, 0.04),
+    0 8px 16px -4px rgba(0, 0, 0, 0.08),
+    0 32px 64px -12px rgba(124, 58, 237, 0.08);
+  transform: translateY(-2px);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+/* 3. Elite Stat Card — top accent border variant for metric tiles */
+.elite-stat-card {
+  background: linear-gradient(145deg, #ffffff 0%, rgba(249, 250, 251, 0.6) 100%);
+  box-shadow:
+    0 1px 2px 0   rgba(0, 0, 0, 0.04),
+    0 4px 8px -2px rgba(0, 0, 0, 0.06),
+    0 20px 48px -8px rgba(0, 0, 0, 0.08);
+  border-radius: 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-top: 3px solid var(--tm-ethereal-purple);
+  padding: 1.5rem;
+}
+
+/* 4. Elite Section Title — generous tracking for premium headers */
+.elite-section-title {
+  font-family: var(--font-serif);
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  color: #111827;
+  line-height: 1.1;
+}
+
+/* 5. The Reservation Card — booking item variant */
+.elite-booking-card {
+  background: linear-gradient(135deg, rgba(238, 242, 255, 0.6) 0%, rgba(245, 243, 255, 0.6) 100%);
+  box-shadow:
+    0 1px 3px 0 rgba(0, 0, 0, 0.04),
+    0 8px 24px -6px rgba(99, 102, 241, 0.10);
+  border: 1px solid rgba(165, 180, 252, 0.25);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+.elite-booking-card:hover {
+  box-shadow:
+    0 1px 3px 0 rgba(0, 0, 0, 0.05),
+    0 12px 32px -6px rgba(124, 58, 237, 0.14);
+  transform: translateY(-1px);
+}
+
+/* V's_new_end */

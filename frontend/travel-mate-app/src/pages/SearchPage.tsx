@@ -46,6 +46,9 @@ export const SearchPage = () => {
             exit={{ opacity: 0, y: -20 }}
             className="w-full h-full pb-12 pt-24"
         >
+            {/* V's_new_start — Centering: max-w-7xl prevents edge-to-edge drift on ultrawide */}
+            {/* Old: <div className="flex flex-col md:flex-row gap-8"> (raw, no max-w) */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col md:flex-row gap-8">
                 {/* Advanced Filter Sidebar */}
                 <div className="w-full md:w-1/3 lg:w-1/4 flex-shrink-0">
@@ -169,7 +172,7 @@ export const SearchPage = () => {
                                                     ))}
                                                     {(hotel.amenities?.length || 0) > 3 && <span className="text-xs font-bold text-gray-400 px-1 py-1">+{hotel.amenities.length - 3}</span>}
                                                 </div>
-                                                <LiquidButton variant="primary" onClick={() => navigate(`/hotel/${hotel.hotelId}`)} className="py-2.5 px-6 text-sm font-bold shadow-lg shadow-[var(--tm-ethereal-purple)]/20 hover:scale-105 transition-transform">Reserve</LiquidButton>
+                                                <LiquidButton variant="primary" onClick={() => navigate(`/hotel/${hotel.hotelId}`, { state: { hotelLayoutId: `hotel-card-${hotel.hotelId}` } })} className="py-2.5 px-6 text-sm font-bold shadow-lg shadow-[var(--tm-ethereal-purple)]/20 hover:scale-105 transition-transform">Reserve</LiquidButton>
                                             </div>
                                         </div>
                                     </GlassCard>
@@ -179,6 +182,7 @@ export const SearchPage = () => {
                     </AnimatePresence>
                 </div>
             </div>
+            </div>{/* V's_new_end — close centering wrapper */}
         </motion.div>
     );
 };

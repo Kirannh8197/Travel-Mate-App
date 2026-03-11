@@ -56,4 +56,35 @@ router.post('/login', async (req: Request, res: Response) => {
     }
 });
 
+// V's_new_start — Admin: GET /api/auth/users (strict isAdmin guard)
+/**
+ * GET /api/auth/users
+ * Admin-only: returns all registered users (passwords stripped).
+ * Guard: reads 'userid' header, verifies caller is ADMIN before responding.
+ */
+router.get('/users', async (req: Request, res: Response) => {
+    try {
+        const requesterId = req.headers['userid'];
+        if (!requesterId) {
+            return res.status(401).json({ message: 'Authentication required.' });
+        }
+
+        // Validate that the requester is an ADMIN
+        const requester = await User.findOne({ userId: Number(requesterId) });
+        if (!requester || requester.role !== 'ADMIN') {
+            return res.status(403).json({ message: 'Forbidden: Admin access only.' });
+        }
+
+        // Fetch all users, strip passwords, newest first
+        const users = await User.find()
+            .select('-password')
+            .sort({ createdAt: -1 });
+
+        return res.status(200).json({ data: users });
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
+    }
+});
+// V's_new_end
+
 export default router;

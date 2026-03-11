@@ -83,3 +83,115 @@
 - `frontend/travel-mate-app/index.html`: (User) Updated the Favicon link to reference the new elite brand icon.
 
 //V's_new_end
+
+---
+
+## Premium-Plus Architecture Upgrade — 2026-03-10
+
+//V's_new_start
+
+### Added
+- `frontend/travel-mate-app/src/components/layout/Navbar.tsx`: Extracted the global navigation bar from `App.tsx` into a dedicated layout component. Includes role-based link rendering and Auth Modal.
+- `frontend/travel-mate-app/src/components/ui/CheckoutDrawer.tsx`: Flagship **Liquid-Glass Bottom Sheet Checkout Drawer** — a full 3-step flow (Payment → Arrival Sequence → Confirmation) that slides up over the hotel detail page. Preserves premium Card-Flip and UPI methods. Integrates Mapbox chauffeur booking as the "Arrival Sequence."
+
+### Modified
+- `frontend/travel-mate-app/src/App.tsx`: Refactored to a clean modular architecture. `<Navbar />` imported from `layout/`, `/payment` route redirects to `/search` (drawer handles checkout).
+- `frontend/travel-mate-app/src/store/useUserStore.ts`: Implemented **Zustand `persist` middleware** (localStorage key: `travelmate-user`). Page refreshes no longer reset the session.
+- `backend/src/services/hotelBooking.service.ts`: Upgraded `createBooking` to use **Mongoose sessions/transactions** for atomic booking integrity. Graceful fallback for standalone MongoDB.
+- `frontend/travel-mate-app/src/pages/SearchPage.tsx`: "Reserve" button now passes `hotelLayoutId` in navigation state, enabling **Framer Motion shared element transitions** to `HotelDetailPage`.
+- `frontend/travel-mate-app/src/pages/HotelDetailPage.tsx`: Applies `layoutId` to hero image for morph transition. "Reserve" opens **CheckoutDrawer** instead of navigating to `/payment`.
+- `frontend/travel-mate-app/src/pages/PaymentPage.tsx`: Commented out and preserved as a reference/fallback. Superseded by `CheckoutDrawer.tsx`.
+
+//V's_new_end
+
+---
+
+## Visual Identity Audit — 2026-03-10
+
+//V's_new_start
+
+### Added (Global Design System)
+- `frontend/travel-mate-app/src/index.css`: Added **5 reusable Elite utility classes** forming the Sovereign Design System:
+  - `.elite-container` — `max-w-72rem mx-auto` centering wrapper with responsive padding
+  - `.elite-card` — Subtle gradient (`#fff → gray-50`) with **3-layer premium shadow** (contact + ambient + glow)
+  - `.elite-stat-card` — Metric tile variant with purple top-border accent
+  - `.elite-section-title` — Tracked serif header (`letter-spacing: 0.01em`)
+  - `.elite-booking-card` — Indigo/purple gradient booking item with interactive hover lift
+
+### Modified (Visual Identity Audit)
+- `frontend/travel-mate-app/src/components/layout/Navbar.tsx`: **Glass Hardening** — upgraded to `border-white/20` + layered inner shadow (`inset_0_-1px`) replacing flat `border-gray-200/50`. True "floating glass" effect at all scroll states.
+- `frontend/travel-mate-app/src/components/ui/UserDashboard.tsx`: **Full Traveler Portal Overhaul** —
+  - Wrapped in `.elite-container`
+  - Added 4-stat bar (Total Stays, Active, Total Invested, Member Since) using `.elite-stat-card`
+  - Profile card: gradient avatar ring + role badge pill
+  - **Reservation cards replaced from 1-column `space-y-4` stack → responsive `grid-cols-1/2/3`** using `.elite-booking-card`
+  - Color-coded status badges per booking state (CONFIRMED/PENDING/CANCELLED/COMPLETED)
+- `frontend/travel-mate-app/src/pages/SandboxBooking.tsx`: `.elite-container` centering, `elite-section-title` header, booking cards upgraded to `.elite-booking-card`. Active cards grid changed to `grid-cols-1 lg:grid-cols-2`.
+- `frontend/travel-mate-app/src/pages/ReviewPortal.tsx`: **Widened** from `max-w-lg` to `max-w-2xl` + `.elite-container`. Rating panel now has a purple/indigo gradient background. Card uses `.elite-card`.
+- `frontend/travel-mate-app/src/components/ui/HostDashboard.tsx`: `.elite-container` + `elite-section-title`, property card uses `.elite-card`, booking activity uses `.elite-booking-card`.
+- `frontend/travel-mate-app/src/components/ui/AdminDashboard.tsx`: `.elite-container` + `elite-section-title`, both approval and audit panels use `.elite-card` with layered shadows.
+
+> **Visual Identity Audit Status: COMPLETE — All 7 pages are now centrally anchored at max-w-72rem.**
+
+//V's_new_end
+
+---
+
+## Governance & Alignment Audit — 2026-03-11
+
+//V's_new_start
+
+### Layout Fixes (Zero-Tolerance Centering)
+- `frontend/travel-mate-app/src/pages/SearchPage.tsx`: Added `max-w-7xl mx-auto px-4 sm:px-6 lg:px-8` centering wrapper inside the `motion.div` root — sidebar + results no longer drift edge-to-edge.
+- `frontend/travel-mate-app/src/pages/ReviewPortal.tsx`: Replaced `max-w-2xl` with `max-w-4xl mx-auto` centered card — form is now mathematically centered, not left-floating.
+
+### Navbar Sovereign Repair
+- `frontend/travel-mate-app/src/components/layout/Navbar.tsx`: Full rewrite —
+  - Added `w-full shrink-0` on `<nav>` to kill the collapse/shrink bug on any route
+  - `whitespace-nowrap` on all links + `gap-7` flex spacing for robust non-wrapping layout
+  - **Guest users** now only see `Search & Discover` — `Active Booking` and `Trust Portal` are hidden until authenticated
+  - Authenticated Traveler, Host, Admin each render their exact correct link set
+
+### Security Hardening
+- `frontend/travel-mate-app/src/pages/ReviewPortal.tsx`: **Host Role Barrier** — if `role === 'HOTEL_HOST'`, the rating form is replaced with an amber "View-Only Mode" panel featuring a ShieldAlert icon. Hosts cannot self-review.
+- `frontend/travel-mate-app/src/pages/ReviewPortal.tsx`: Star rating panel moved to a **dark purple/indigo gradient background** — stars are permanently visible (root-cause: white stars on white card = invisible).
+
+### Admin God-Mode Expansion
+- `frontend/travel-mate-app/src/components/ui/AdminDashboard.tsx`: Full rewrite into a **3-tab governance hub**:
+  - **Tab 1 — Pending Approvals**: Grid of pending hotels with Approve/Reject + inspect eye-button. Badge counter on tab.
+  - **Tab 2 — All Hotels**: Sortable table of ALL hotels (not just pending) with hover-reveal Approve / De-list / Deep Inspect actions. De-list sets status to `REJECTED`.
+  - **Tab 3 — User Management**: Lists all registered users with roles from `GET /api/auth/users`.
+  - **Deep Inspect Drawer**: Slide-in panel with full hotel details (pricing, location, owner email, Mongo ID, amenities, description) + Approve / Reject / Ban actions.
+  - **Platform Stat Bar**: Total Properties / Pending / Approved / Users at a glance.
+  - **Refresh button**: Re-fetches hotel data without page reload.
+
+> **Governance & Alignment Status: SOVEREIGN — Host self-review blocked, Guest nav gated, Admin has full God-Mode governance.**
+
+//V's_new_end
+
+---
+
+## Left-Drift Exorcism & Finish Line Audit — 2026-03-11
+
+//V's_new_start
+
+### Root Cause — Left-Drift (Confirmed & Fixed)
+**Why ALL pages were left-aligned:**  
+Vite's default starter template sets `body { display: flex; }`. In a flex row container, `#root` (React's mount point) becomes a flex *item* and **shrinks to content width** — NOT viewport width. Because `#root` was narrower than the viewport, `mx-auto` in `.elite-container` had no surplus space to distribute. Every page appeared left-anchored regardless of the centering code.
+
+**The 3-layer chain fix:**
+1. `index.css` — Changed `body { display: flex }` → `display: block; width: 100%` and added `#root { width: 100%; min-height: 100vh }`
+2. `App.tsx` — Added `w-full` to the root `<div>` (the final link in the chain)
+3. Result: `body(block, 100%) → #root(100%) → div(w-full) → elite-container(mx-auto)` — centering is now mathematically guaranteed across all routes.
+
+### Admin Endpoint
+- `backend/src/routes/authRoutes.routes.ts`: Implemented `GET /api/auth/users` with strict **isAdmin guard** — reads `userid` header, queries User DB, rejects non-Admins with 403. Returns all users (passwords stripped) sorted by `createdAt` descending. Pairs with Admin Dashboard's User Management tab.
+
+### Host Expansion
+- `frontend/travel-mate-app/src/components/ui/HostDashboard.tsx`:
+  - **Multi-Listing**: "List New Property" button permanently moved to the page header (was conditional on `bookings.length === 0` — now always visible).
+  - **Cancel Loop**: Added "Cancel Booking" button to each Live Guest Activity card. Only shown for non-CANCELLED/non-COMPLETED bookings. Calls `PATCH /api/booking/:id/cancel` and updates local state optimistically.
+
+> **Sovereign Status: CONFIRMED — Centering ghost exorcised, Admin has full eyes, Host can list multiple properties and cancel bookings.**
+
+//V's_new_end

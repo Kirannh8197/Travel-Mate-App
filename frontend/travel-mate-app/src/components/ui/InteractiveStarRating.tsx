@@ -1,6 +1,5 @@
-//V's_new_start
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Star } from 'lucide-react';
 
 interface InteractiveStarRatingProps {
@@ -12,49 +11,40 @@ interface InteractiveStarRatingProps {
 export const InteractiveStarRating: React.FC<InteractiveStarRatingProps> = ({ rating, setRating, editable = true }) => {
     const [hoverRating, setHoverRating] = useState(0);
 
-    const handleMouseEnter = (index: number) => {
-        if (!editable) return;
-        setHoverRating(index);
-    };
-
-    const handleMouseLeave = () => {
-        if (!editable) return;
-        setHoverRating(0);
-    };
-
-    const handleClick = (index: number) => {
-        if (!editable) return;
-        setRating(index);
-    };
+    const activeRating = hoverRating || rating; // use hover preview, fall back to committed rating
 
     return (
-        <div className="flex gap-1" onMouseLeave={handleMouseLeave}>
+        <div
+            className="flex gap-2 items-center"
+            onMouseLeave={() => editable && setHoverRating(0)}
+        >
             {[1, 2, 3, 4, 5].map((index) => {
-                const isFilled = (hoverRating || rating) >= index;
+                const filled = activeRating >= index;
                 return (
                     <motion.button
                         key={index}
                         type="button"
-                        onClick={() => handleClick(index)}
-                        onMouseEnter={() => handleMouseEnter(index)}
-                        whileHover={editable ? { scale: 1.2 } : {}}
-                        whileTap={editable ? { scale: 0.9 } : {}}
-                        className={`p-1 rounded-full transition-colors focus:outline-none ${editable ? 'cursor-pointer' : 'cursor-default'}`}
+                        onClick={() => editable && setRating(index)}
+                        onMouseEnter={() => editable && setHoverRating(index)}
+                        whileHover={editable ? { scale: 1.25, rotate: 5 } : {}}
+                        whileTap={editable ? { scale: 0.85 } : {}}
+                        transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                        className={`relative focus:outline-none ${editable ? 'cursor-pointer' : 'cursor-default'}`}
+                        aria-label={`Rate ${index} star${index > 1 ? 's' : ''}`}
                     >
-                        <AnimatePresence>
-                            {isFilled && (
-                                <motion.div
-                                    initial={{ opacity: 0, scale: 0 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0 }}
-                                    className="absolute inset-0"
-                                >
-                                    <Star className="w-8 h-8 text-yellow-400 fill-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]" />
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-                        {/* Empty star base */}
-                        <Star className={`w-8 h-8 transition-colors ${isFilled ? 'text-transparent' : 'text-gray-400/50'}`} />
+                        {/* Base (empty) star — always rendered */}
+                        <Star className="w-9 h-9 text-white/30 transition-colors duration-150" />
+
+                        {/* Filled star — overlaid, toggled via opacity (no AnimatePresence mount/unmount glitch) */}
+                        <span
+                            className="absolute inset-0 flex items-center justify-center transition-all duration-150"
+                            style={{
+                                opacity: filled ? 1 : 0,
+                                transform: filled ? 'scale(1)' : 'scale(0.6)',
+                            }}
+                        >
+                            <Star className="w-9 h-9 text-yellow-400 fill-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.7)]" />
+                        </span>
                     </motion.button>
                 );
             })}
